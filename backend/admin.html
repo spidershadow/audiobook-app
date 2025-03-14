@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audiobook Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold mb-6">Upload New Audiobook</h1>
+        
+        <form id="uploadForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Title</label>
+                <input type="text" name="title" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Author</label>
+                <input type="text" name="author" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Audio File (MP3)</label>
+                <input type="file" name="audioFile" accept="audio/*" required class="mt-1 block w-full">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Cover Image</label>
+                <input type="file" name="coverImage" accept="image/*" required class="mt-1 block w-full">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Text File (Optional - for automatic transcript generation)</label>
+                <input type="file" name="textFile" accept=".txt" class="mt-1 block w-full">
+                <p class="mt-1 text-sm text-gray-500">Upload a text file to automatically generate synchronized transcripts</p>
+            </div>
+            
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Upload Book
+            </button>
+        </form>
+        
+        <div id="status" class="mt-4 text-sm"></div>
+        <div id="error" class="mt-4 text-sm text-red-600"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const status = document.getElementById('status');
+            const error = document.getElementById('error');
+            status.textContent = 'Uploading...';
+            error.textContent = '';
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/books', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Upload failed');
+                }
+                
+                status.textContent = 'Book uploaded successfully! ' + 
+                    (formData.get('textFile') ? 'Transcript has been generated automatically.' : 'No transcript generated.');
+                error.textContent = '';
+                e.target.reset();
+            } catch (err) {
+                status.textContent = '';
+                error.textContent = 'Error: ' + (err.message || 'Upload failed');
+                console.error('Upload error:', err);
+            }
+        });
+    </script>
+</body>
+</html>

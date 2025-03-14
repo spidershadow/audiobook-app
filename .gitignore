@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Uploaded files
+backend/uploads/*.mp3
+backend/uploads/*.txt
+backend/uploads/*.webp
+backend/uploads/*
